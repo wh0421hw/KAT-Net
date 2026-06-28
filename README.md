@@ -4,6 +4,10 @@ KAT-Net is a computational framework for the joint prediction of lysine crotonyl
 
 This repository provides the datasets and the main training and testing scripts used for KAT-Net.
 
+<p align="center">
+  <img src="katnet_overview.png" alt="Overview of the KAT-Net framework" width="850">
+</p>
+
 ## Features
 
 * **Joint lysine acylation prediction:** KAT-Net predicts Kcr, Ksucc and Kac sites within a unified framework.
