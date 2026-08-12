@@ -1,7 +1,11 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-"""Prepare AlphaFold2/ColabFold structural features for KAT-Net."""
+"""Prepare AlphaFold2/ColabFold structural features for KAT-Net.
+
+Solvent accessibility is represented consistently as DSSP-derived
+relative solvent accessibility (RSA) and stored under the NPZ key "rsa".
+"""
 
 import argparse
 import gzip
@@ -19,7 +23,7 @@ from Bio.PDB.Polypeptide import is_aa
 
 
 VALID_AA = set("ACDEFGHIKLMNPQRSTVWYX-")
-FEATURE_KEYS = ("coords", "plddt", "sasa", "ss", "pae", "disto")
+FEATURE_KEYS = ("coords", "plddt", "rsa", "ss", "pae", "disto")
 
 
 def safe_core_key(value):
@@ -478,7 +482,7 @@ def map_to_original(sequence, positions, coords, plddt, rsa, ss, pae, disto):
     expected = {
         "coords": (model_length, 3),
         "plddt": (model_length,),
-        "sasa": (model_length,),
+        "rsa": (model_length,),
         "ss": (model_length, 3),
         "pae": (model_length, model_length),
         "disto": (model_length, model_length, 64),
@@ -487,7 +491,7 @@ def map_to_original(sequence, positions, coords, plddt, rsa, ss, pae, disto):
     actual = {
         "coords": coords.shape,
         "plddt": plddt.shape,
-        "sasa": rsa.shape,
+        "rsa": rsa.shape,
         "ss": ss.shape,
         "pae": pae.shape,
         "disto": disto.shape,
@@ -502,8 +506,8 @@ def map_to_original(sequence, positions, coords, plddt, rsa, ss, pae, disto):
     full_coords = np.zeros((original_length, 3), dtype=np.float32)
     full_plddt = np.zeros(original_length, dtype=np.float32)
 
-    # The key remains "sasa" for compatibility; values are DSSP-derived RSA.
-    full_sasa = np.zeros(original_length, dtype=np.float32)
+    # The key remains "rsa" for compatibility; values are DSSP-derived RSA.
+    full_rsa = np.zeros(original_length, dtype=np.float32)
 
     full_ss = np.zeros((original_length, 3), dtype=np.float32)
     full_pae = np.full(
@@ -518,7 +522,7 @@ def map_to_original(sequence, positions, coords, plddt, rsa, ss, pae, disto):
 
     full_coords[positions] = coords
     full_plddt[positions] = plddt
-    full_sasa[positions] = rsa
+    full_rsa[positions] = rsa
     full_ss[positions] = ss
 
     full_pae[np.ix_(positions, positions)] = pae
@@ -532,7 +536,7 @@ def map_to_original(sequence, positions, coords, plddt, rsa, ss, pae, disto):
     return {
         "coords": full_coords,
         "plddt": full_plddt,
-        "sasa": full_sasa,
+        "rsa": full_rsa,
         "ss": full_ss,
         "pae": full_pae,
         "disto": full_disto,
@@ -543,7 +547,7 @@ def validate_feature(feature, length):
     expected = {
         "coords": (length, 3),
         "plddt": (length,),
-        "sasa": (length,),
+        "rsa": (length,),
         "ss": (length, 3),
         "pae": (length, length),
         "disto": (length, length, 64),
@@ -657,7 +661,7 @@ def convert_features(args):
             output_path,
             coords=feature["coords"],
             plddt=feature["plddt"],
-            sasa=feature["sasa"],
+            rsa=feature["rsa"],
             ss=feature["ss"],
             pae=feature["pae"],
             disto=feature["disto"],
