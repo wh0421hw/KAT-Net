@@ -1,0 +1,18 @@
+{
+  "status": "PASS_WITH_KCR_IDENTIFIER_LIMITATION",
+  "original_files_modified": false,
+  "original_files_sha256_unchanged": true,
+  "new_dataset_root": "/home/ys/whProject/Mymodel/data_cross_ptm_filtered_v1",
+  "unique_removed_training_samples": 781,
+  "independent_test_sets_modified": false,
+  "independent_test_sets_copied_with_identical_sha256": true,
+  "policy": {
+    "remove_exact_normalized_windows": true,
+    "remove_known_same_protein": true,
+    "remove_known_same_site": true,
+    "remove_near_windows": true,
+    "near_identity_threshold": 0.9,
+    "near_coverage_threshold": 0.8
+  },
+  "kcr_limitation": "Kcr public processed windows do not retain traceable UniProt/site identifiers; Kcr was handled using conservative centre-window decontamination."
+}

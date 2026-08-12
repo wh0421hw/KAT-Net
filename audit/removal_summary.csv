@@ -1,0 +1,7 @@
+﻿Task,Label,Removed_samples,Label_name
+Kac,0,125,Negative
+Kac,1,33,Positive
+Kcr,0,144,Negative
+Kcr,1,172,Positive
+Ksucc,0,143,Negative
+Ksucc,1,164,Positive

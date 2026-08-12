@@ -1,0 +1,43 @@
+{
+  "model": "KAT-Net",
+  "selected_configuration": "candidate",
+  "hyperparameters": {
+    "sigma_init": 3.0,
+    "margin": 0.05,
+    "gamma_neg": 2.0,
+    "curvature_init": 2.0,
+    "topology_bias_init": 1.0,
+    "logvar_clip_min": -1.5,
+    "logvar_clip_max": 2.0
+  },
+  "source": "pooled out-of-fold validation predictions only",
+  "criterion": "exact maximum MCC",
+  "test_labels_used": false,
+  "folds": [
+    1,
+    2,
+    3,
+    4,
+    5
+  ],
+  "tasks": {
+    "Kcr": {
+      "threshold": 0.6071421504020691,
+      "n": 12184,
+      "positive": 6803,
+      "negative": 5381
+    },
+    "Ksucc": {
+      "threshold": 0.5561277270317078,
+      "n": 8950,
+      "positive": 4576,
+      "negative": 4374
+    },
+    "Kac": {
+      "threshold": 0.4134853184223175,
+      "n": 5311,
+      "positive": 761,
+      "negative": 4550
+    }
+  }
+}

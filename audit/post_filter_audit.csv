@@ -1,0 +1,7 @@
+﻿Independent_Test_Task,Other_PTM_Training_Task,Remaining_strict_pair_records,Remaining_strict_train_samples,Remaining_near_pair_records,Remaining_near_train_samples
+Kcr,Ksucc,0,0,0,0
+Kcr,Kac,0,0,0,0
+Ksucc,Kcr,0,0,0,0
+Ksucc,Kac,0,0,0,0
+Kac,Kcr,0,0,0,0
+Kac,Ksucc,0,0,0,0
