@@ -109,10 +109,11 @@ class KATDataset(Dataset):
         enc = self.tokenizer(seq, return_tensors="pt", truncation=False, padding=False)
 
         with np.load(path) as d:
+            # "rsa" stores DSSP-derived relative solvent accessibility.
             struct = {
                 "coords": torch.tensor(d["coords"], dtype=torch.float32),
                 "plddt": torch.tensor(d["plddt"], dtype=torch.float32),
-                "sasa": torch.tensor(d["sasa"], dtype=torch.float32),
+                "rsa": torch.tensor(d["rsa"], dtype=torch.float32),
                 "ss": torch.tensor(d["ss"], dtype=torch.float32),
                 "pae": torch.tensor(d["pae"], dtype=torch.float32),
                 "disto": torch.tensor(d["disto"], dtype=torch.float32),
@@ -137,7 +138,7 @@ def collate_fn(batch):
     p_phys = torch.zeros(B, L, 4)
     coords = torch.zeros(B, L, 3)
     plddt = torch.zeros(B, L)
-    sasa = torch.zeros(B, L)
+    rsa = torch.zeros(B, L)
     ss = torch.zeros(B, L, 3)
     pae = torch.full((B, L, L), 30.0)
     disto = torch.zeros(B, L, L, 64)
@@ -150,12 +151,12 @@ def collate_fn(batch):
         p_phys[i, :n] = phys[i]
         coords[i, :n] = structs[i]["coords"][:n]
         plddt[i, :n] = structs[i]["plddt"][:n]
-        sasa[i, :n] = structs[i]["sasa"][:n]
+        rsa[i, :n] = structs[i]["rsa"][:n]
         ss[i, :n] = structs[i]["ss"][:n]
         pae[i, :n, :n] = structs[i]["pae"][:n, :n]
         disto[i, :n, :n] = structs[i]["disto"][:n, :n]
 
-    struct = (coords, plddt, sasa, ss, pae, disto)
+    struct = (coords, plddt, rsa, ss, pae, disto)
 
     return (
         p_ids,
@@ -287,7 +288,7 @@ class CenterAnchoredMamba(nn.Module):
         return self.norm2(x[:, prompt_len:prompt_len + L])
 
 
-# PAE-aware EGNN
+# PAE-aware EGNN (node features include pLDDT, DSSP-derived RSA and SS)
 class EGNNLayer(nn.Module):
     def __init__(self):
         super().__init__()
@@ -372,12 +373,12 @@ class StructureEncoder(nn.Module):
         return F.pad(vec, (0, max(0, LPE_DIM - vec.size(-1))))
 
     def forward(self, struct):
-        coords, plddt, sasa, ss, pae, disto = struct
+        coords, plddt, rsa, ss, pae, disto = struct
 
         node = torch.cat(
             (
                 plddt.unsqueeze(-1),
-                sasa.unsqueeze(-1),
+                rsa.unsqueeze(-1),
                 ss,
                 self.laplacian_pe(coords),
             ),
@@ -397,7 +398,7 @@ class StructureEncoder(nn.Module):
 
 # Hyperbolic routing
 class HyperbolicRouting(nn.Module):
-    def __init__(self, c_init=1.0):
+    def __init__(self, c_init=2.0):
         super().__init__()
 
         self.task_anchors = nn.Parameter(torch.randn(N_TASKS, HIDDEN))
